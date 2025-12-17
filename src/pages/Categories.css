@@ -1,0 +1,118 @@
+.categories-container {
+    width: 100%;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 3rem;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+}
+
+.categories-section,
+.brands-section {
+    margin-bottom: 4rem;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e0e0e0;
+    font-family: 'Playfair Display', serif;
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.category-card,
+.brand-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.category-card:hover,
+.brand-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.category-name,
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 0.5rem 0;
+}
+
+.category-id,
+.brand-id {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0 0 1rem 0;
+    font-family: monospace;
+}
+
+.category-description,
+.brand-description {
+    color: #666;
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
+    flex: 1;
+}
+
+.view-link {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: #000000;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-align: center;
+    margin-top: auto;
+    border: 2px solid #000000;
+}
+
+.view-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    background: #333333;
+}
+
+.loading,
+.no-items {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .items-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}

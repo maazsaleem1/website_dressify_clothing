@@ -1,0 +1,337 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '../contexts/CartContext';
+import { createOrder } from '../services/orderService';
+import { sendOrderConfirmationEmail } from '../services/emailService';
+import { useToast } from '../contexts/ToastContext';
+import './Checkout.css';
+
+function Checkout() {
+    const navigate = useNavigate();
+    const { cart, getTotalPrice, clearCart, getSessionId } = useCart();
+    const { success: showSuccess, error: showError } = useToast();
+
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        notes: ''
+    });
+
+    const [paymentMethod, setPaymentMethod] = useState('cod');
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState(null);
+
+    const formatCurrency = (value) => {
+        if (!value) return 'Rs. 0';
+        return `Rs. ${parseFloat(value).toLocaleString()}`;
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const validateForm = () => {
+        if (!formData.name.trim()) {
+            setError('Please enter your name');
+            return false;
+        }
+        if (!formData.email.trim()) {
+            setError('Please enter your email');
+            return false;
+        }
+        if (!formData.phone.trim()) {
+            setError('Please enter your phone number');
+            return false;
+        }
+        if (!formData.address.trim()) {
+            setError('Please enter your shipping address');
+            return false;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            setError('Please enter a valid email address');
+            return false;
+        }
+        return true;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError(null);
+
+        if (!validateForm()) {
+            return;
+        }
+
+        if (cart.length === 0) {
+            setError('Your cart is empty');
+            return;
+        }
+
+        setSubmitting(true);
+
+        try {
+            const paymentInfo = {
+                method: paymentMethod === 'cod' ? 'Cash on Delivery' : 'EasyPaisa',
+                status: paymentMethod === 'cod' ? 'Pending' : 'Pending'
+            };
+
+            const result = await createOrder(cart, formData, paymentInfo);
+
+            if (result.success) {
+                // Calculate costs for email
+                const subtotal = getTotalPrice();
+                const shipping = 249; // Fixed shipping cost
+                const tax = 0; // No tax for now, adjust if needed
+                const total = subtotal + shipping + tax;
+
+                const costs = {
+                    shipping: shipping,
+                    tax: tax,
+                    total: total
+                };
+
+                // Send order confirmation email
+                try {
+                    const emailResult = await sendOrderConfirmationEmail(
+                        result.data,
+                        cart,
+                        costs,
+                        formData.email
+                    );
+
+                    if (emailResult.success) {
+                        showSuccess('Order confirmation email sent!');
+                    } else {
+                        // Don't fail the order if email fails, just log it
+                        console.warn('Email sending failed:', emailResult.error);
+                        showError('Order placed but email could not be sent. Please check your email.');
+                    }
+                } catch (emailError) {
+                    // Don't fail the order if email fails
+                    console.error('Email error:', emailError);
+                }
+
+                // Clear cart after successful order
+                await clearCart();
+
+                // Navigate to success page with order details
+                navigate('/checkout/success', {
+                    state: {
+                        orderNumber: result.data.orderNumber,
+                        orderId: result.data.id
+                    }
+                });
+            } else {
+                setError(result.error || 'Failed to create order. Please try again.');
+                showError(result.error || 'Failed to create order. Please try again.');
+            }
+        } catch (err) {
+            console.error('Error creating order:', err);
+            setError('An error occurred. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    if (cart.length === 0) {
+        return (
+            <div className="checkout-container">
+                <div className="empty-cart-message">
+                    <h2>Your cart is empty</h2>
+                    <p>Add some products to checkout</p>
+                    <button onClick={() => navigate('/products')} className="shop-btn">
+                        Continue Shopping
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    const subtotal = getTotalPrice();
+    const shipping = 249;
+    const total = subtotal + shipping;
+
+    return (
+        <div className="checkout-container">
+            <h1 className="checkout-title">Checkout</h1>
+
+            <div className="checkout-content">
+                <form className="checkout-form" onSubmit={handleSubmit}>
+                    <div className="form-section">
+                        <h2 className="section-title">Customer Information</h2>
+
+                        <div className="form-group">
+                            <label htmlFor="name">Full Name *</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter your full name"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="email">Email *</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="your.email@example.com"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="phone">Phone Number *</label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="+92 300 1234567"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="address">Shipping Address *</label>
+                            <textarea
+                                id="address"
+                                name="address"
+                                value={formData.address}
+                                onChange={handleInputChange}
+                                required
+                                rows="4"
+                                placeholder="Enter your complete shipping address"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="notes">Order Notes (Optional)</label>
+                            <textarea
+                                id="notes"
+                                name="notes"
+                                value={formData.notes}
+                                onChange={handleInputChange}
+                                rows="3"
+                                placeholder="Any special instructions..."
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-section">
+                        <h2 className="section-title">Payment Method</h2>
+
+                        <div className="payment-options">
+                            <label className="payment-option">
+                                <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="cod"
+                                    checked={paymentMethod === 'cod'}
+                                    onChange={(e) => setPaymentMethod(e.target.value)}
+                                />
+                                <div className="payment-option-content">
+                                    <span className="payment-name">Cash on Delivery (COD)</span>
+                                    <span className="payment-desc">Pay when you receive your order</span>
+                                </div>
+                            </label>
+
+                            <label className="payment-option">
+                                <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="easypaisa"
+                                    checked={paymentMethod === 'easypaisa'}
+                                    onChange={(e) => setPaymentMethod(e.target.value)}
+                                />
+                                <div className="payment-option-content">
+                                    <span className="payment-name">EasyPaisa</span>
+                                    <span className="payment-desc">You will receive payment instructions after order confirmation</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        {paymentMethod === 'easypaisa' && (
+                            <div className="payment-info">
+                                <p><strong>EasyPaisa Payment Instructions:</strong></p>
+                                <p>After placing your order, you will receive payment details via email/SMS. Please complete the payment within 24 hours to confirm your order.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {error && (
+                        <div className="error-message">
+                            {error}
+                        </div>
+                    )}
+
+                    <button
+                        type="submit"
+                        className="submit-order-btn"
+                        disabled={submitting}
+                    >
+                        {submitting ? 'Placing Order...' : 'Place Order'}
+                    </button>
+                </form>
+
+                <div className="checkout-summary">
+                    <h2 className="summary-title">Order Summary</h2>
+
+                    <div className="order-items-preview">
+                        {cart.map((item) => (
+                            <div key={item.id} className="preview-item">
+                                <div className="preview-item-image">
+                                    {item.imageUrl ? (
+                                        <img src={item.imageUrl} alt={item.productName} />
+                                    ) : (
+                                        <div className="preview-placeholder">No Image</div>
+                                    )}
+                                </div>
+                                <div className="preview-item-details">
+                                    <p className="preview-item-name">{item.productName}</p>
+                                    {item.size && <p className="preview-item-size">Size: {item.size}</p>}
+                                    <p className="preview-item-quantity">Qty: {item.quantity}</p>
+                                </div>
+                                <p className="preview-item-price">
+                                    {formatCurrency((item.unitPrice || 0) * (item.quantity || 1))}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="summary-breakdown">
+                        <div className="summary-row">
+                            <span>Subtotal</span>
+                            <span>{formatCurrency(subtotal)}</span>
+                        </div>
+                        <div className="summary-row">
+                            <span>Shipping</span>
+                            <span>{formatCurrency(shipping)}</span>
+                        </div>
+                        <div className="summary-divider"></div>
+                        <div className="summary-row total">
+                            <span>Total</span>
+                            <span>{formatCurrency(total)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default Checkout;
+

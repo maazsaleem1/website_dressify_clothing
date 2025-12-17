@@ -1,0 +1,122 @@
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 500px;
+    padding: 1rem 1.5rem;
+    background: white;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    animation: slideInRight 0.3s ease-out;
+    font-family: 'Inter', sans-serif;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast-success {
+    border-color: #000000;
+    background: #f9f9f9;
+}
+
+.toast-error {
+    border-color: #dc3545;
+    background: #fff5f5;
+}
+
+.toast-info {
+    border-color: #0066cc;
+    background: #f0f7ff;
+}
+
+.toast-warning {
+    border-color: #ffc107;
+    background: #fffbf0;
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.toast-icon {
+    font-size: 1.25rem;
+    font-weight: bold;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.toast-success .toast-icon {
+    color: #000000;
+}
+
+.toast-error .toast-icon {
+    color: #dc3545;
+}
+
+.toast-info .toast-icon {
+    color: #0066cc;
+}
+
+.toast-warning .toast-icon {
+    color: #ffc107;
+}
+
+.toast-message {
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.toast-close:hover {
+    color: #000000;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .toast {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+    }
+}
+

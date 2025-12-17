@@ -1,0 +1,56 @@
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    min-height: 400px;
+}
+
+.error-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+.error-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #000000;
+    margin: 0 0 0.5rem 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.error-message {
+    font-size: 1rem;
+    color: #666;
+    margin: 0 0 2rem 0;
+    max-width: 500px;
+    line-height: 1.6;
+}
+
+.error-retry-btn {
+    padding: 0.75rem 2rem;
+    background: #000000;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.error-retry-btn:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.error-retry-btn:active {
+    transform: translateY(0);
+}
+
