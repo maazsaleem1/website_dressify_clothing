@@ -14,49 +14,33 @@ import { db } from '../firebase/config';
 export const getProductReviews = async (productId) => {
     try {
         const reviewsCollection = collection(db, 'reviews');
+
+        // Use query without orderBy to avoid index requirement
+        // We'll sort client-side instead
         const q = query(
             reviewsCollection,
             where('productId', '==', productId),
-            where('status', '==', 'approved'), // Only show approved reviews
-            orderBy('createdAt', 'desc')
+            where('status', '==', 'approved')
         );
 
         const snapshot = await getDocs(q);
-        const reviews = snapshot.docs.map(doc => ({
+        let reviews = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         }));
 
+        // Sort client-side by createdAt (newest first)
+        reviews.sort((a, b) => {
+            const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+            const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+            return dateB - dateA; // Descending order (newest first)
+        });
+
         return { success: true, data: reviews };
     } catch (error) {
         console.error('Error fetching reviews:', error);
-        // If query fails (e.g., no index), try without orderBy
-        try {
-            const reviewsCollection = collection(db, 'reviews');
-            const q = query(
-                reviewsCollection,
-                where('productId', '==', productId),
-                where('status', '==', 'approved')
-            );
-
-            const snapshot = await getDocs(q);
-            let reviews = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-            // Sort client-side
-            reviews.sort((a, b) => {
-                const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
-                const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
-                return dateB - dateA;
-            });
-
-            return { success: true, data: reviews };
-        } catch (err) {
-            console.error('Error fetching reviews (fallback):', err);
-            return { success: false, error: err.message, data: [] };
-        }
+        // If query still fails, return empty array
+        return { success: false, error: error.message, data: [] };
     }
 };
 
