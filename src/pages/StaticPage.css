@@ -1,0 +1,76 @@
+.static-page {
+    min-height: calc(100vh - 200px);
+    background: #f8f8f8;
+    padding: 2rem 1.5rem 4rem;
+}
+
+.static-page-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 2.5rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.static-page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #000;
+    margin: 0 0 1.5rem 0;
+    letter-spacing: 0.02em;
+}
+
+.static-page-content {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #333;
+}
+
+.static-page-content p {
+    margin: 0 0 1rem 0;
+}
+
+.static-page-content p:last-child {
+    margin-bottom: 0;
+}
+
+.static-page-h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #000;
+    margin: 1.5rem 0 0.5rem 0;
+}
+
+.static-page-h2:first-of-type {
+    margin-top: 0;
+}
+
+.static-page-contact-block {
+    margin: 1.25rem 0;
+    padding: 1rem 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.static-page-contact-block p {
+    margin: 0 0 0.75rem 0;
+}
+
+.static-page-contact-block p:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+    .static-page {
+        padding: 1.5rem 1rem 3rem;
+    }
+
+    .static-page-container {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .static-page-title {
+        font-size: 1.5rem;
+    }
+}

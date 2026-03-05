@@ -11,7 +11,7 @@
 
   color-scheme: light;
   color: #213547;
-  background-color: #f5f5f5;
+  background-color: #000000;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -36,7 +36,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #000000;
   scroll-behavior: smooth;
 }
 

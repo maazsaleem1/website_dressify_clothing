@@ -4,13 +4,15 @@
     flex-direction: column;
 }
 
-/* Top Bar */
+/* Top Bar - full width, single line like Pegador */
 .top-bar {
-    background: #000000;
+    background: #1a1a1a;
     color: white;
-    padding: 0.5rem 0;
-    font-size: 0.85rem;
-    border-bottom: 1px solid #333;
+    padding: 0.6rem 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border-bottom: none;
 }
 
 .top-bar-content {
@@ -24,32 +26,12 @@
     gap: 1rem;
 }
 
-.top-bar-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
+.top-bar-content.top-bar-single {
+    justify-content: center;
 }
 
-.top-bar-left .separator {
-    color: #666;
-}
-
-.top-bar-right {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-}
-
-.social-icon {
-    color: white;
-    text-decoration: none;
-    font-size: 1rem;
-    transition: opacity 0.2s;
-}
-
-.social-icon:hover {
-    opacity: 0.7;
+.top-bar-text {
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* Header */
@@ -210,22 +192,15 @@
     color: #000000;
     text-decoration: none;
     font-weight: 500;
-    font-size: 0.9rem;
-    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     transition: color 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
 }
 
 .header-nav-menu a:hover,
 .header-nav-menu a.active {
-    color: #666666;
-}
-
-.dropdown-arrow {
-    font-size: 0.7rem;
-    opacity: 0.7;
+    color: #333333;
 }
 
 /* Drawer */
@@ -340,10 +315,10 @@
 /* Main Content */
 .main-content {
     flex: 1;
-    max-width: 1400px;
     width: 100%;
-    margin: 0 auto;
-    padding: 2rem;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 /* Footer */
@@ -606,12 +581,11 @@
 @media (max-width: 768px) {
     .top-bar-content {
         padding: 0 1rem;
-        font-size: 0.75rem;
     }
 
-    .top-bar-left {
-        flex-direction: column;
-        gap: 0.5rem;
+    .top-bar-text {
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
     }
 
     .header-content {

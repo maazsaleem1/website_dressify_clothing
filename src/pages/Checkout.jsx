@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import { useCartDrawer } from '../contexts/CartDrawerContext';
 import { createOrder } from '../services/orderService';
 import { sendOrderConfirmationEmail } from '../services/emailService';
 import { useToast } from '../contexts/ToastContext';
@@ -9,6 +10,7 @@ import './Checkout.css';
 function Checkout() {
     const navigate = useNavigate();
     const { cart, getTotalPrice, clearCart, getSessionId } = useCart();
+    const { openCartDrawer } = useCartDrawer();
     const { success: showSuccess, error: showError } = useToast();
 
     const [formData, setFormData] = useState({
@@ -141,13 +143,15 @@ function Checkout() {
 
     if (cart.length === 0) {
         return (
-            <div className="checkout-container">
-                <div className="empty-cart-message">
-                    <h2>Your cart is empty</h2>
-                    <p>Add some products to checkout</p>
-                    <button onClick={() => navigate('/products')} className="shop-btn">
-                        Continue Shopping
-                    </button>
+            <div className="checkout-page">
+                <div className="checkout-container checkout-empty">
+                    <div className="empty-cart-message">
+                        <h2>Your cart is empty</h2>
+                        <p>Add items to your cart to proceed to checkout.</p>
+                        <button type="button" onClick={() => navigate('/products')} className="shop-btn">
+                            Continue shopping
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -158,137 +162,131 @@ function Checkout() {
     const total = subtotal + shipping;
 
     return (
-        <div className="checkout-container">
-            <h1 className="checkout-title">Checkout</h1>
+        <div className="checkout-page">
+            <div className="checkout-container">
+                <header className="checkout-header">
+                    <button type="button" className="checkout-back" onClick={openCartDrawer}>← Back to cart</button>
+                    <h1 className="checkout-title">Checkout</h1>
+                    <p className="checkout-subtitle">Complete your order securely</p>
+                </header>
 
-            <div className="checkout-content">
-                <form className="checkout-form" onSubmit={handleSubmit}>
-                    <div className="form-section">
-                        <h2 className="section-title">Customer Information</h2>
+                <div className="checkout-content">
+                    <form className="checkout-form" onSubmit={handleSubmit}>
+                        <div className="form-section">
+                            <h2 className="section-title">Contact information</h2>
 
-                        <div className="form-group">
-                            <label htmlFor="name">Full Name *</label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                required
-                                placeholder="Enter your full name"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="email">Email *</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                required
-                                placeholder="your.email@example.com"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="phone">Phone Number *</label>
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleInputChange}
-                                required
-                                placeholder="+92 300 1234567"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="address">Shipping Address *</label>
-                            <textarea
-                                id="address"
-                                name="address"
-                                value={formData.address}
-                                onChange={handleInputChange}
-                                required
-                                rows="4"
-                                placeholder="Enter your complete shipping address"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="notes">Order Notes (Optional)</label>
-                            <textarea
-                                id="notes"
-                                name="notes"
-                                value={formData.notes}
-                                onChange={handleInputChange}
-                                rows="3"
-                                placeholder="Any special instructions..."
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-section">
-                        <h2 className="section-title">Payment Method</h2>
-
-                        <div className="payment-options">
-                            <label className="payment-option">
-                                <input
-                                    type="radio"
-                                    name="paymentMethod"
-                                    value="cod"
-                                    checked={paymentMethod === 'cod'}
-                                    onChange={(e) => setPaymentMethod(e.target.value)}
-                                />
-                                <div className="payment-option-content">
-                                    <span className="payment-name">Cash on Delivery (COD)</span>
-                                    <span className="payment-desc">Pay when you receive your order</span>
+                            <div className="form-row form-row-two">
+                                <div className="form-group">
+                                    <label htmlFor="name">Full name</label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleInputChange}
+                                        required
+                                        placeholder="John Doe"
+                                    />
                                 </div>
-                            </label>
-
-                            <label className="payment-option">
-                                <input
-                                    type="radio"
-                                    name="paymentMethod"
-                                    value="easypaisa"
-                                    checked={paymentMethod === 'easypaisa'}
-                                    onChange={(e) => setPaymentMethod(e.target.value)}
-                                />
-                                <div className="payment-option-content">
-                                    <span className="payment-name">EasyPaisa</span>
-                                    <span className="payment-desc">You will receive payment instructions after order confirmation</span>
+                                <div className="form-group">
+                                    <label htmlFor="email">Email</label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                        required
+                                        placeholder="john@example.com"
+                                    />
                                 </div>
-                            </label>
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="phone">Phone number</label>
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="+92 300 1234567"
+                                />
+                            </div>
                         </div>
 
-                        {paymentMethod === 'easypaisa' && (
-                            <div className="payment-info">
-                                <p><strong>EasyPaisa Payment Instructions:</strong></p>
-                                <p>After placing your order, you will receive payment details via email/SMS. Please complete the payment within 24 hours to confirm your order.</p>
+                        <div className="form-section">
+                            <h2 className="section-title">Shipping address</h2>
+
+                            <div className="form-group">
+                                <label htmlFor="address">Street address</label>
+                                <textarea
+                                    id="address"
+                                    name="address"
+                                    value={formData.address}
+                                    onChange={handleInputChange}
+                                    required
+                                    rows="3"
+                                    placeholder="House number, street, area, city"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="notes">Order notes <span className="label-optional">(optional)</span></label>
+                                <textarea
+                                    id="notes"
+                                    name="notes"
+                                    value={formData.notes}
+                                    onChange={handleInputChange}
+                                    rows="2"
+                                    placeholder="Delivery instructions or special requests"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="form-section">
+                            <h2 className="section-title">Payment method</h2>
+
+                            <div className="payment-options">
+                                <label className="payment-option">
+                                    <input type="radio" name="paymentMethod" value="cod" checked={paymentMethod === 'cod'} onChange={(e) => setPaymentMethod(e.target.value)} />
+                                    <span className="payment-option-box"></span>
+                                    <div className="payment-option-content">
+                                        <span className="payment-name">Cash on Delivery</span>
+                                        <span className="payment-desc">Pay when you receive your order</span>
+                                    </div>
+                                </label>
+                                <label className="payment-option">
+                                    <input type="radio" name="paymentMethod" value="easypaisa" checked={paymentMethod === 'easypaisa'} onChange={(e) => setPaymentMethod(e.target.value)} />
+                                    <span className="payment-option-box"></span>
+                                    <div className="payment-option-content">
+                                        <span className="payment-name">EasyPaisa</span>
+                                        <span className="payment-desc">Payment details sent after order confirmation</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            {paymentMethod === 'easypaisa' && (
+                                <div className="payment-info">
+                                    <p>After placing your order, you will receive payment details via email or SMS. Complete payment within 24 hours to confirm.</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {error && (
+                            <div className="checkout-error" role="alert">
+                                {error}
                             </div>
                         )}
-                    </div>
 
-                    {error && (
-                        <div className="error-message">
-                            {error}
-                        </div>
-                    )}
+                        <button type="submit" className="submit-order-btn" disabled={submitting}>
+                            {submitting ? 'Placing order…' : 'Place order'}
+                        </button>
+                    </form>
 
-                    <button
-                        type="submit"
-                        className="submit-order-btn"
-                        disabled={submitting}
-                    >
-                        {submitting ? 'Placing Order...' : 'Place Order'}
-                    </button>
-                </form>
-
-                <div className="checkout-summary">
-                    <h2 className="summary-title">Order Summary</h2>
+                    <aside className="checkout-summary">
+                        <h2 className="summary-title">Order summary</h2>
 
                     <div className="order-items-preview">
                         {cart.map((item) => (
@@ -312,21 +310,22 @@ function Checkout() {
                         ))}
                     </div>
 
-                    <div className="summary-breakdown">
-                        <div className="summary-row">
-                            <span>Subtotal</span>
-                            <span>{formatCurrency(subtotal)}</span>
+                        <div className="summary-breakdown">
+                            <div className="summary-row">
+                                <span>Subtotal</span>
+                                <span>{formatCurrency(subtotal)}</span>
+                            </div>
+                            <div className="summary-row">
+                                <span>Shipping</span>
+                                <span>{formatCurrency(shipping)}</span>
+                            </div>
+                            <div className="summary-divider"></div>
+                            <div className="summary-row summary-total">
+                                <span>Total</span>
+                                <span>{formatCurrency(total)}</span>
+                            </div>
                         </div>
-                        <div className="summary-row">
-                            <span>Shipping</span>
-                            <span>{formatCurrency(shipping)}</span>
-                        </div>
-                        <div className="summary-divider"></div>
-                        <div className="summary-row total">
-                            <span>Total</span>
-                            <span>{formatCurrency(total)}</span>
-                        </div>
-                    </div>
+                    </aside>
                 </div>
             </div>
         </div>

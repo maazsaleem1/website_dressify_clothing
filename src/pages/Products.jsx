@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { useCart } from '../contexts/CartContext';
+import { useToast } from '../contexts/ToastContext';
 import ProductSkeleton from '../components/ProductSkeleton';
 import ErrorState from '../components/ErrorState';
 import EmptyState from '../components/EmptyState';
-import LazyImage from '../components/LazyImage';
 import './Products.css';
 
 function Products() {
+    const navigate = useNavigate();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -21,6 +23,9 @@ function Products() {
     const searchQuery = searchParams.get('search'); // Custom search query
     const [sortBy, setSortBy] = useState('featured');
     const [showFilters, setShowFilters] = useState(false);
+    const [addingId, setAddingId] = useState(null);
+    const { addToCart } = useCart();
+    const { success: showSuccess, error: showError } = useToast();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -165,6 +170,15 @@ function Products() {
         fetchProducts();
     }, [filter, category, brand, productIds, productId, searchQuery, sortBy]);
 
+    // When a filtered view (category, search, etc.) has no products, auto-redirect to all products so user sees products without clicking "Browse All Products"
+    useEffect(() => {
+        if (loading || error) return;
+        const hasFilter = category || brand || searchQuery || productIds || productId || filter;
+        if (products.length === 0 && hasFilter) {
+            navigate('/products', { replace: true });
+        }
+    }, [loading, error, products.length, category, brand, searchQuery, productIds, productId, filter, navigate]);
+
     const formatCurrency = (value) => {
         if (!value) return 'N/A';
         return `Rs. ${parseFloat(value).toLocaleString()}`;
@@ -183,9 +197,35 @@ function Products() {
             return product.sizes
                 .map(size => typeof size === 'object' && size.size ? size.size : size)
                 .filter(Boolean)
-                .filter((size, index, self) => self.indexOf(size) === index); // Remove duplicates
+                .filter((size, index, self) => self.indexOf(size) === index);
         }
         return [];
+    };
+
+    const getDefaultSize = (product) => {
+        const sizes = getSizes(product);
+        if (sizes.length > 0) return sizes[0];
+        return 'M';
+    };
+
+    const handleQuickAdd = async (e, product) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (addingId) return;
+        const size = getDefaultSize(product);
+        setAddingId(product.id);
+        try {
+            const result = await addToCart(product, size, 1);
+            if (result.success) {
+                showSuccess(`${product.productName || 'Product'} added to cart`);
+            } else {
+                showError(result.error || 'Could not add to cart');
+            }
+        } catch (err) {
+            showError('Could not add to cart');
+        } finally {
+            setAddingId(null);
+        }
     };
 
     if (loading) {
@@ -193,10 +233,14 @@ function Products() {
             <div className="products-container">
                 <div className="products-layout">
                     <div className="products-main">
-                        <div className="products-header">
-                            <h1 className="page-title">Loading Products...</h1>
+                        <div className="products-header-pegador">
+                            <div className="products-header-left">
+                                <h1 className="page-title-pegador">
+                                    MOMENTS TO MEMORIES <span className="page-title-pipe">|</span> <span className="page-title-category">—</span>
+                                </h1>
+                            </div>
                         </div>
-                        <div className="products-grid">
+                        <div className="products-grid products-grid-pegador">
                             <ProductSkeleton count={8} />
                         </div>
                     </div>
@@ -247,25 +291,37 @@ function Products() {
                     </div>
                 </aside>
 
-                {/* Main Content */}
+                {/* Main Content - Pegador style */}
                 <div className="products-main">
-                    <div className="products-header">
-                        <h1 className="page-title">
-                            {productIds ? 'Featured Collection' :
-                                productId ? 'Product' :
-                                    searchQuery ? `Search: ${searchQuery}` :
-                                        filter === 'low-stock' ? 'Low Stock Items' :
-                                            filter === 'new' ? 'New Arrivals' :
-                                                category ? 'Category Products' :
-                                                    brand ? 'Brand Products' :
-                                                        'All Products'}
-                        </h1>
+                    <div className="products-header-pegador">
+                        <div className="products-header-left">
+                            <h1 className="page-title-pegador">
+                                MOMENTS TO MEMORIES
+                                <span className="page-title-pipe"> | </span>
+                                <span className="page-title-category">
+                                    {productIds ? 'COLLECTION' :
+                                        productId ? 'PRODUCT' :
+                                            searchQuery ? searchQuery.toUpperCase() :
+                                                filter === 'low-stock' ? 'LOW STOCK' :
+                                                    filter === 'new' ? 'NEW ARRIVALS' :
+                                                        category === 'men' ? 'MEN' :
+                                                            category === 'women' ? 'WOMEN' :
+                                                                brand ? (brand.toUpperCase()) :
+                                                                    'ALL PRODUCTS'}
+                                </span>
+                            </h1>
+                            {!loading && (
+                                <p className="products-count-pegador">
+                                    {products.length} {products.length === 1 ? 'Product' : 'Products'}
+                                </p>
+                            )}
+                        </div>
                         <div className="products-controls">
-                            <button className="filter-toggle" onClick={() => setShowFilters(!showFilters)}>
-                                Filters
+                            <button className="filter-toggle filter-btn-pegador" onClick={() => setShowFilters(!showFilters)}>
+                                Filter →
                             </button>
                             <select
-                                className="sort-select"
+                                className="sort-select sort-select-pegador"
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
                             >
@@ -296,92 +352,71 @@ function Products() {
                             icon={searchQuery ? '🔍' : '📦'}
                         />
                     ) : (
-                        <>
-                            <div className="products-count">
-                                Showing {products.length} {products.length === 1 ? 'product' : 'products'}
-                            </div>
-                            <div className="products-grid">
-                                {products.map((product) => {
-                                    const onlinePrice = product.onlinePrice || product.sellingPrice;
-                                    const originalPrice = product.onlinePrice ? product.sellingPrice : product.costPerUnit;
-                                    const discount = calculateDiscount(originalPrice, onlinePrice);
-                                    const sizes = getSizes(product);
+                        <div className="products-grid products-grid-pegador">
+                            {products.map((product) => {
+                                const onlinePrice = product.onlinePrice || product.sellingPrice;
+                                const originalPrice = product.onlinePrice ? product.sellingPrice : product.costPerUnit;
+                                const discount = calculateDiscount(originalPrice, onlinePrice);
 
-                                    // Check for "New" or "Sale" badges from admin
-                                    const productTag = (product.tag || product.status || '').toLowerCase();
-                                    const isNew = productTag === 'new' || product.isNew === true || product.new === true;
-                                    const isSale = productTag === 'sale' || product.isSale === true || product.sale === true || discount > 0;
+                                const productTag = (product.tag || product.status || '').toLowerCase();
+                                const isNew = productTag === 'new' || product.isNew === true || product.new === true;
+                                const isSale = productTag === 'sale' || product.isSale === true || product.sale === true || discount > 0;
+                                const showBadge = isSale ? 'sale' : (isNew ? 'new' : null);
 
-                                    // Determine which badge to show (Sale takes priority)
-                                    const showBadge = isSale ? 'sale' : (isNew ? 'new' : null);
+                                const primaryImage = product.imageUrl && product.imageUrl.trim() !== ''
+                                    ? product.imageUrl
+                                    : (product.productImages && Array.isArray(product.productImages) && product.productImages.length > 0
+                                        ? product.productImages[0]
+                                        : null);
 
-                                    // Get primary image - use imageUrl first, fallback to productImages[0]
-                                    const primaryImage = product.imageUrl && product.imageUrl.trim() !== ''
-                                        ? product.imageUrl
-                                        : (product.productImages && Array.isArray(product.productImages) && product.productImages.length > 0
-                                            ? product.productImages[0]
-                                            : null);
+                                const hoverImage = product.productImages && Array.isArray(product.productImages) && product.productImages.length > 1
+                                    ? product.productImages[1]
+                                    : (product.productImages && Array.isArray(product.productImages) && product.productImages.length > 0 && primaryImage !== product.productImages[0]
+                                        ? product.productImages[0]
+                                        : null);
 
-                                    // Get hover image (second image from productImages array if available)
-                                    const hoverImage = product.productImages && Array.isArray(product.productImages) && product.productImages.length > 1
-                                        ? product.productImages[1]
-                                        : (product.productImages && Array.isArray(product.productImages) && product.productImages.length > 0 && primaryImage !== product.productImages[0]
-                                            ? product.productImages[0]
-                                            : null);
-
-                                    return (
-                                        <Link key={product.id} to={`/products/${product.id}`} className="product-card">
-                                            <div className="product-image-container">
-                                                {primaryImage ? (
-                                                    <>
-                                                        <img src={primaryImage} alt={product.productName} className="product-image" />
-                                                        {hoverImage && hoverImage !== primaryImage && (
-                                                            <img src={hoverImage} alt={`${product.productName} - View 2`} className="product-image-secondary" />
-                                                        )}
-                                                    </>
-                                                ) : (
-                                                    <div className="product-image-placeholder">
-                                                        <span>No Image</span>
-                                                    </div>
-                                                )}
-                                                {showBadge && (
-                                                    <span className={`product-badge ${showBadge}-badge`}>
-                                                        {showBadge === 'sale' ? 'Sale' : 'New'}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <div className="product-info">
-                                                <h3 className="product-name">
-                                                    {product.productName || 'Unnamed Product'}
-                                                    {product.sku && (
-                                                        <span className="product-sku-inline"> - {product.sku}</span>
+                                return (
+                                    <Link key={product.id} to={`/products/${product.id}`} className="product-card product-card-pegador">
+                                        <div className="product-image-container">
+                                            {primaryImage ? (
+                                                <>
+                                                    <img src={primaryImage} alt={product.productName} className="product-image" />
+                                                    {hoverImage && hoverImage !== primaryImage && (
+                                                        <img src={hoverImage} alt="" className="product-image-secondary" />
                                                     )}
-                                                </h3>
-                                                <div className="product-price">
-                                                    {isSale && originalPrice && onlinePrice && parseFloat(originalPrice) > parseFloat(onlinePrice) ? (
-                                                        <div className="price-with-was-now">
-                                                            <span className="was-price">Was {formatCurrency(originalPrice)}</span>
-                                                            <span className="now-price">Now {formatCurrency(onlinePrice)}</span>
-                                                        </div>
-                                                    ) : onlinePrice ? (
-                                                        <span className="price">{formatCurrency(onlinePrice)}</span>
-                                                    ) : (
-                                                        <span className="price">Price on request</span>
-                                                    )}
+                                                </>
+                                            ) : (
+                                                <div className="product-image-placeholder">
+                                                    <span>No Image</span>
                                                 </div>
-                                                {sizes.length > 0 && (
-                                                    <div className="product-sizes">
-                                                        {sizes.slice(0, 5).map((size, idx) => (
-                                                            <span key={idx} className="size-badge">{size}</span>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        </>
+                                            )}
+                                            {showBadge && (
+                                                <span className={`product-badge product-badge-pegador ${showBadge}-badge`}>
+                                                    {showBadge === 'sale' ? 'Sale' : 'New'}
+                                                </span>
+                                            )}
+                                            <button
+                                                type="button"
+                                                className="product-quick-add"
+                                                aria-label="Add to cart"
+                                                onClick={(e) => handleQuickAdd(e, product)}
+                                                disabled={addingId === product.id}
+                                            >
+                                                {addingId === product.id ? '…' : '+'}
+                                            </button>
+                                        </div>
+                                        <div className="product-info product-info-pegador">
+                                            <h3 className="product-name product-name-pegador">
+                                                {product.productName || 'Unnamed Product'}
+                                            </h3>
+                                            <p className="product-price product-price-pegador">
+                                                {onlinePrice ? formatCurrency(onlinePrice) : 'Price on request'}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
+                        </div>
                     )}
                 </div>
             </div>

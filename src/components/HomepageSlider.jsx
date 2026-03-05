@@ -1,17 +1,73 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useCartDrawer } from '../contexts/CartDrawerContext';
 import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import './HomepageSlider.css';
 
 function HomepageSlider() {
     const navigate = useNavigate();
+    const { openCartDrawer } = useCartDrawer();
     const [sliders, setSliders] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+    const [isHeaderSolid, setIsHeaderSolid] = useState(false);
     const intervalRef = useRef(null);
     const sliderRef = useRef(null);
+
+    const HeroNav = () => (
+        <>
+            <div className="hero-topbar">
+                FREE SHIPPING ON ORDERS OVER RS. 2,999
+            </div>
+            <header className={`hero-header ${isHeaderSolid ? 'hero-header-solid' : ''}`}>
+                <div className="hero-header-left">
+                    <button
+                        type="button"
+                        className="hero-icon-button hero-icon-button-left"
+                        aria-label="Search products"
+                        onClick={() => navigate('/products')}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="hero-icon-svg">
+                            <path d="M15.5 15.5L20 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                            <circle cx="11" cy="11" r="5.2" stroke="currentColor" strokeWidth="1.8" />
+                        </svg>
+                    </button>
+                    <nav className="hero-nav-links" aria-label="Main navigation">
+                        <button type="button" className="hero-nav-link hero-nav-link-highlight" onClick={() => navigate('/products')}>NEW SP '26 COLLECTION</button>
+                        <button type="button" className="hero-nav-link" onClick={() => navigate('/products?category=men')}>MEN</button>
+                    </nav>
+                </div>
+                <div className="hero-logo">Dressify</div>
+                <div className="hero-header-actions">
+                    <button type="button" className="hero-icon-button" aria-label="Account" onClick={() => navigate('/account')}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="hero-icon-svg">
+                            <circle cx="12" cy="9" r="3.2" stroke="currentColor" strokeWidth="1.8" />
+                            <path d="M5.5 19.2C6.7 16.8 9.1 15.3 12 15.3C14.9 15.3 17.3 16.8 18.5 19.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                        </svg>
+                    </button>
+                    <button type="button" className="hero-icon-button" aria-label="Shopping bag" onClick={openCartDrawer}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="hero-icon-svg">
+                            <path d="M7 8L6.3 18.2C6.2 19.2 7 20 8 20H16C17 20 17.8 19.2 17.7 18.2L17 8H7Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                            <path d="M9.5 11C9.5 9.6 10.6 8.5 12 8.5C13.4 8.5 14.5 9.6 14.5 11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                            <path d="M8 8H16L15.2 5.5C15 4.9 14.5 4.5 13.8 4.5H10.2C9.5 4.5 9 4.9 8.8 5.5L8 8Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+            </header>
+        </>
+    );
+
+    const HeroContent = ({ heading, subheading }) => (
+        <div className="slider-content hero-main">
+            <span className="hero-label">{subheading || "NEW SP '26 COLLECTION ONLINE NOW"}</span>
+            <h1 className="hero-title-fullscreen">{heading || 'MOMENTS TO MEMORIES'}</h1>
+            <div className="hero-cta-row">
+                <Link to="/products?category=men" className="hero-cta-button">SHOP MEN</Link>
+            </div>
+        </div>
+    );
 
     useEffect(() => {
         const fetchSliders = async () => {
@@ -74,6 +130,18 @@ function HomepageSlider() {
         };
 
         fetchSliders();
+    }, []);
+
+    // Header: white when scrolled down, transparent when near top
+    useEffect(() => {
+        const handleScroll = () => {
+            const y = window.scrollY;
+            setIsHeaderSolid(y > 80);
+        };
+
+        handleScroll();
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     // Auto-play functionality
@@ -174,18 +242,25 @@ function HomepageSlider() {
     }
 
     if (sliders.length === 0) {
-        // Fallback to default hero if no sliders
+        // Fallback to static hero if no sliders exist
         return (
-            <section className="hero-fullscreen">
-                <div className="hero-background-overlay"></div>
-                <div className="hero-content-fullscreen">
-                    <span className="hero-label">LIMITED TIME</span>
-                    <h1 className="hero-title-fullscreen">SALE OF THE SEASON</h1>
-                    <Link to="/products" className="hero-link-fullscreen">
-                        EXPLORE NOW
-                    </Link>
+            <div className="slider-container" ref={sliderRef}>
+                <HeroNav />
+                <div
+                    className="slider-slide slider-slide-static"
+                    style={{
+                        backgroundImage: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)',
+                    }}
+                >
+                    <div className="slider-overlay"></div>
+                    <div className="hero-shell">
+                        <HeroContent
+                            heading="MOMENTS TO MEMORIES"
+                            subheading="WHEN SPRING BEGINS, NORMAL DAYS TURN INTO SOMETHING MORE..."
+                        />
+                    </div>
                 </div>
-            </section>
+            </div>
         );
     }
 
@@ -193,6 +268,7 @@ function HomepageSlider() {
 
     return (
         <div className="slider-container" ref={sliderRef}>
+            <HeroNav />
             <div
                 className="slider-slide"
                 onClick={(e) => handleSliderClick(currentSlider, e)}
@@ -204,21 +280,11 @@ function HomepageSlider() {
                 }}
             >
                 <div className="slider-overlay"></div>
-                <div className="slider-content">
-                    {currentSlider.heading && (
-                        <h1 className="slider-heading">{currentSlider.heading}</h1>
-                    )}
-                    {currentSlider.subheading && (
-                        <p className="slider-subheading">{currentSlider.subheading}</p>
-                    )}
-                    {currentSlider.ctaText && currentSlider.ctaLink && currentSlider.ctaLink.trim() !== '' && (
-                        <Link
-                            to={currentSlider.ctaLink}
-                            className="slider-cta-button"
-                        >
-                            {currentSlider.ctaText}
-                        </Link>
-                    )}
+                <div className="hero-shell">
+                    <HeroContent
+                        heading={currentSlider.heading}
+                        subheading={currentSlider.subheading}
+                    />
                 </div>
             </div>
 

@@ -5,6 +5,81 @@
     padding: 0;
 }
 
+/* Brand Slogan Section - after banner (Pegador-style) */
+.brand-slogan-section {
+    background: #ffffff;
+    padding: 4rem 2rem 5rem;
+    text-align: center;
+}
+
+.brand-slogan-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: #000000;
+    margin: 0 0 0.5rem 0;
+}
+
+.brand-slogan-tagline {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 400;
+    font-style: italic;
+    color: #333333;
+    margin: 0 0 1.5rem 0;
+    letter-spacing: 0.02em;
+}
+
+.brand-slogan-text {
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #555555;
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.6;
+}
+
+.brand-slogan-cta {
+    display: inline-block;
+    padding: 0.9rem 2.5rem;
+    background: #1a1a1a;
+    color: #ffffff;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.25s ease, transform 0.2s ease;
+}
+
+.brand-slogan-cta:hover {
+    background: #000000;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .brand-slogan-section {
+        padding: 3rem 1.25rem 4rem;
+    }
+
+    .brand-slogan-logo {
+        font-size: 2rem;
+        letter-spacing: 0.22em;
+    }
+
+    .brand-slogan-tagline {
+        font-size: 1.1rem;
+    }
+
+    .brand-slogan-text {
+        font-size: 0.8rem;
+        letter-spacing: 0.08em;
+    }
+}
+
 /* Full Screen Hero */
 .hero-fullscreen {
     position: relative;

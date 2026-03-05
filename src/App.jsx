@@ -7,6 +7,11 @@ import Categories from './pages/Categories';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import CheckoutSuccess from './pages/CheckoutSuccess';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Blogs from './pages/Blogs';
+import FAQs from './pages/FAQs';
+import Terms from './pages/Terms';
 import './App.css';
 
 function App() {
@@ -20,6 +25,11 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/checkout/success" element={<CheckoutSuccess />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/blogs" element={<Blogs />} />
+        <Route path="/faqs" element={<FAQs />} />
+        <Route path="/terms" element={<Terms />} />
       </Routes>
     </Layout>
   );
