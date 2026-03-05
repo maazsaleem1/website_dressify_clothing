@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useCart } from '../contexts/CartContext';
+import { useCartDrawer } from '../contexts/CartDrawerContext';
 import { useToast } from '../contexts/ToastContext';
 import ReviewsList from '../components/ReviewsList';
 import ReviewForm from '../components/ReviewForm';
@@ -12,6 +13,7 @@ function ProductDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { addToCart } = useCart();
+    const { openCartDrawer } = useCartDrawer();
     const { success, error: showError } = useToast();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -116,6 +118,7 @@ function ProductDetail() {
 
             if (result.success) {
                 success(`${product.productName} added to cart!`);
+                openCartDrawer();
             } else {
                 showError(result.error || 'Failed to add product to cart. Please try again.');
             }

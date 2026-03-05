@@ -3,6 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useCart } from '../contexts/CartContext';
+import { useCartDrawer } from '../contexts/CartDrawerContext';
 import { useToast } from '../contexts/ToastContext';
 import ProductSkeleton from '../components/ProductSkeleton';
 import ErrorState from '../components/ErrorState';
@@ -25,6 +26,7 @@ function Products() {
     const [showFilters, setShowFilters] = useState(false);
     const [addingId, setAddingId] = useState(null);
     const { addToCart } = useCart();
+    const { openCartDrawer } = useCartDrawer();
     const { success: showSuccess, error: showError } = useToast();
 
     useEffect(() => {
@@ -218,6 +220,7 @@ function Products() {
             const result = await addToCart(product, size, 1);
             if (result.success) {
                 showSuccess(`${product.productName || 'Product'} added to cart`);
+                openCartDrawer();
             } else {
                 showError(result.error || 'Could not add to cart');
             }

@@ -74,3 +74,21 @@
         font-size: 1.5rem;
     }
 }
+
+@media (max-width: 480px) {
+    .static-page {
+        padding: 1.25rem 0.75rem 2.5rem;
+    }
+
+    .static-page-container {
+        padding: 1.25rem 1rem;
+    }
+
+    .static-page-title {
+        font-size: 1.35rem;
+    }
+
+    .static-page-content {
+        font-size: 0.95rem;
+    }
+}

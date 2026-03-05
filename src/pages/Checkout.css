@@ -481,6 +481,28 @@
     .checkout-title {
         font-size: 1.5rem;
     }
+}
+
+@media (max-width: 480px) {
+    .checkout-page {
+        padding: 1rem 0 2.5rem;
+    }
+
+    .checkout-container {
+        padding: 0 0.75rem;
+    }
+
+    .checkout-form {
+        padding: 1.25rem;
+    }
+
+    .checkout-title {
+        font-size: 1.35rem;
+    }
+
+    .submit-order-btn {
+        min-height: 48px;
+    }
 
     .preview-item {
         grid-template-columns: 48px 1fr auto;

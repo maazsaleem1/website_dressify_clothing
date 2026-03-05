@@ -519,14 +519,25 @@
 }
 
 @media (max-width: 768px) {
+    .footer-content {
+        padding: 2.5rem 1rem 2rem;
+    }
+
     .footer-columns {
         grid-template-columns: 1fr;
-        gap: 2rem;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
 
     .footer-bottom {
         flex-direction: column;
         text-align: center;
+        gap: 0.75rem;
+    }
+
+    .footer-copyright,
+    .footer-powered {
+        font-size: 0.8rem;
     }
 
     .scroll-to-top {
@@ -577,7 +588,7 @@
     }
 }
 
-/* Responsive */
+/* Responsive - Tablet */
 @media (max-width: 768px) {
     .top-bar-content {
         padding: 0 1rem;
@@ -585,17 +596,22 @@
 
     .top-bar-text {
         font-size: 0.65rem;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.1em;
     }
 
     .header-content {
-        padding: 1rem;
+        padding: 0.75rem 1rem;
+        gap: 1rem;
     }
 
     .header-nav-menu {
-        padding: 0.75rem 1rem;
-        gap: 1rem;
-        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+        gap: 0.75rem;
+    }
+
+    .header-nav-menu a {
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
     }
 
     .logo h1 {
@@ -603,8 +619,14 @@
         letter-spacing: 2px;
     }
 
+    .icon-button {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0.5rem;
+    }
+
     .main-content {
-        padding: 1rem;
+        padding: 0;
     }
 
     .drawer {
@@ -621,5 +643,66 @@
     .whatsapp-float svg {
         width: 24px;
         height: 24px;
+    }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 480px) {
+    .top-bar {
+        padding: 0.4rem 0;
+    }
+
+    .top-bar-text {
+        font-size: 0.6rem;
+        letter-spacing: 0.08em;
+    }
+
+    .top-bar-content {
+        padding: 0 0.75rem;
+    }
+
+    .header-content {
+        padding: 0.6rem 0.75rem;
+    }
+
+    .header-nav-menu {
+        padding: 0.4rem 0.75rem;
+        gap: 0.5rem;
+    }
+
+    .header-nav-menu a {
+        font-size: 0.65rem;
+        letter-spacing: 0.08em;
+    }
+
+    .logo h1 {
+        font-size: 1.25rem;
+        letter-spacing: 1px;
+    }
+
+    .cart-count {
+        font-size: 0.65rem;
+        min-width: 16px;
+        height: 16px;
+    }
+
+    .footer-content {
+        padding: 2rem 0.75rem 1.5rem;
+    }
+
+    .footer-column-title {
+        font-size: 0.9rem;
+    }
+
+    .footer-links li a,
+    .footer-contact {
+        font-size: 0.85rem;
+    }
+
+    .whatsapp-float {
+        width: 48px;
+        height: 48px;
+        bottom: 1rem;
+        right: 1rem;
     }
 }

@@ -568,3 +568,46 @@
         padding: 3rem 1rem;
     }
 }
+
+@media (max-width: 480px) {
+    .brand-slogan-section {
+        padding: 2rem 0.75rem 3rem;
+    }
+
+    .brand-slogan-logo {
+        font-size: 1.5rem;
+        letter-spacing: 0.15em;
+    }
+
+    .brand-slogan-tagline {
+        font-size: 1rem;
+    }
+
+    .brand-slogan-cta {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+    }
+
+    .hero-fullscreen {
+        min-height: 350px;
+    }
+
+    .hero-title-fullscreen {
+        font-size: 1.75rem;
+    }
+
+    .section-title-large,
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .products-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .new-arrivals-section,
+    .featured-section {
+        padding: 2rem 0.75rem;
+    }
+}
